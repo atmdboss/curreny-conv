@@ -18,6 +18,12 @@ td, th {
   padding: 0.5rem;
   width: calc(90vw / 3);
 }
+.converter {
+  width: 80vw;
+  margin: auto;
+  display: flex;
+  justify-content: space-evenly;
+}
 
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {

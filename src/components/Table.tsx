@@ -6,7 +6,7 @@ type TableProps = {
 
 const modNum = (numStr: string) => {
   const floatIndex = numStr.indexOf(".");
-  const precisionNum = numStr.slice(0, floatIndex).length + 1;
+  const precisionNum = floatIndex > 0 ? numStr.slice(0, floatIndex).length + 1 : numStr.length;
   const num = Number(numStr).toPrecision(precisionNum);
   return num;
 }

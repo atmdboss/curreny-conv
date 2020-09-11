@@ -4,6 +4,7 @@ import { fetchCurrencies } from "./redux/currencySlice";
 import store from "./redux/store";
 import { useSelector } from "react-redux";
 import Table from "./components/Table";
+import Exchange from "./components/Exchange";
 import { RootState } from "./redux/store";
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
   return (
     <div className="App">
       <Table data={data} />
+      <Exchange data={data} />
     </div>
   );
 }
