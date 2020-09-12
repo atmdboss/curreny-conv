@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from "react";
-import { currType } from "../redux/currencySlice";
+import { ratesType } from "../redux/ratesSlice";
 type TableProps = {
-  data: currType;
+  rates: ratesType;
 };
 
 const modNum = (numStr: string) => {
@@ -11,7 +11,7 @@ const modNum = (numStr: string) => {
   return num;
 }
 
-const Table: FunctionComponent<TableProps> = ({ data }) => {
+const Table: FunctionComponent<TableProps> = ({ rates }) => {
   // console.log(data);
   return (
     <table>
@@ -23,8 +23,8 @@ const Table: FunctionComponent<TableProps> = ({ data }) => {
         </tr>
       </thead>
       <tbody>
-        {data.length ?
-          data.map((curr, index) => {
+        {rates.length ?
+          rates.map((curr, index) => {
             return (
               <tr key={index}>
                 <td>{`${curr.ccy} / ${curr.base_ccy}`}</td>

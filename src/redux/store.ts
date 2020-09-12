@@ -1,8 +1,10 @@
+import ratesSlice from "./ratesSlice";
 import currencySlice from "./currencySlice";
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 // import {} from "@types/react-redux";
 
 const rootReducer = combineReducers({
+  [ratesSlice.name]: ratesSlice.reducer,
   [currencySlice.name]: currencySlice.reducer,
 })
 const store = configureStore({

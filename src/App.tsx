@@ -1,21 +1,27 @@
 import React, { useEffect } from "react";
 import "./App.css";
-import { fetchCurrencies } from "./redux/currencySlice";
+import { fetchRates } from "./redux/ratesSlice";
 import store from "./redux/store";
 import { useSelector } from "react-redux";
 import Table from "./components/Table";
 import Exchange from "./components/Exchange";
 import { RootState } from "./redux/store";
+import { setCurrencies } from "./redux/currencySlice";
 
 function App() {
+  const {rates,currency} = useSelector((state: RootState) => state);
+
   useEffect(() => {
-    store.dispatch(fetchCurrencies());
+    store.dispatch(fetchRates());
   }, []);
-  const data = useSelector((state: RootState) => state.currencies);
+  useEffect(() => {
+    store.dispatch(setCurrencies(rates));
+  }, [rates]);
+  
   return (
     <div className="App">
-      <Table data={data} />
-      <Exchange data={data} />
+      <Table rates={rates} />
+      <Exchange currency={currency} />
     </div>
   );
 }

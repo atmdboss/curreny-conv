@@ -1,14 +1,7 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-export const fetchCurrencies = createAsyncThunk("fetchCurrencies", async () => {
-  const response = await fetch(
-    "https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5",
-  );
-  const data = await response.json();
-  return data;
-});
 
-export type currType = {
+export type ratesType = {
   ccy: string,
   base_ccy: string,
   buy: string,
@@ -16,17 +9,18 @@ export type currType = {
 }[]
 
 const currencySlice = createSlice({
-  name: "currencies",
-  initialState: [] as currType,
+  name: "currency",
+  initialState: [] as string[],
   reducers: {
-    // standard reducer logic, with auto-generated action types per reducer
-  },
-  extraReducers: {
-    [fetchCurrencies.fulfilled.toString()]: (
-      state,
-      action: PayloadAction<currType>,
-    ) => action.payload,
+    setCurrencies: (state,action:PayloadAction<ratesType>)=>{
+        const rates = action.payload.map((rate)=>{
+            return [rate.base_ccy,rate.ccy];
+        });
+        const ratesSet = new Set(rates.flat());
+        return [...ratesSet];
+    }
   },
 });
+export const {setCurrencies} = currencySlice.actions;
 
 export default currencySlice;
