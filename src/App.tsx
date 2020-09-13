@@ -21,7 +21,7 @@ function App() {
   return (
     <div className="App">
       <Table rates={rates} />
-      <Exchange currency={currency} />
+      <Exchange rates={rates} currency={currency} />
     </div>
   );
 }
