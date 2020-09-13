@@ -1,6 +1,8 @@
 import React, { ChangeEvent, FunctionComponent, useEffect, useState } from 'react';
 import { ratesType } from '../redux/currencySlice';
 
+let justChanged:string|null=null;
+
 type ExchangeProps = {
     currency: string[];
     rates: ratesType;
@@ -49,12 +51,12 @@ const tryingFunc=(triez:string[],whoChange:{name:string,value:string})=>{
 
 
 const Exchange:FunctionComponent<ExchangeProps> = ({currency,rates}) => {
-    const [currChange, setCurrChange] = useState({xChange:"USD",xGet:"UAH"});
-    const [moneyChange,setMoneyChange] = useState({mChange:"",mGet:""});
-    const [curRate,setCurRate] = useState({buy:"",sale:""})
+    const [currChange, setCurrChange] = useState({change:"USD",get:"UAH"});
+    const [moneyChange,setMoneyChange] = useState({change:"",get:""});
+    const [curRate,setCurRate] = useState({buy:"",sale:"",ccy: "",base_ccy: ""})
 
     useEffect(()=>{
-        const currentCurrency = `${currChange.xChange}/${currChange.xGet}`;
+        const currentCurrency = `${currChange.change}/${currChange.get}`;
         const currToSet = rates.find((rate)=>{
             return `${rate.ccy}/${rate.base_ccy}`===currentCurrency || `${rate.base_ccy}/${rate.ccy}`===currentCurrency  
         }) || {
@@ -63,28 +65,52 @@ const Exchange:FunctionComponent<ExchangeProps> = ({currency,rates}) => {
             buy: "",
             sale: ""
         };
-        setCurRate({buy:currToSet.buy,sale:currToSet.sale});
+        setCurRate(currToSet);
     },[rates,currChange]);
 
     useEffect(()=>{
-        // NEED to know who just changed
-        // calculate amount
         let result;
-        if(moneyChange.mChange){
-            result = Number(moneyChange.mChange) * Number(curRate.buy);
-            setMoneyChange({...moneyChange,mGet:result.toString()});
-        } else if(moneyChange.mGet){
-            result = Number(moneyChange.mGet) / Number(curRate.sale);
-            setMoneyChange({...moneyChange,mChange:result.toString()});
+        if(moneyChange.change){
+            // need to know the currency for change here
+            // check against ccy and basy_ccy and do calc
+            /* if value for "ccy" is same as value on "change" side, then they
+            want to buy the other currency. hence, buy rate should be multiplied 
+            by money to change
+
+            else, the values should be treated as flipped and it would means they
+            want to sell what is on the "get" side, for the value on the other side.
+            hence money to change should be divided by sale rate
+            */
+            if(curRate.ccy===currChange.change){
+                // use buy rate
+                result = Number(moneyChange.change) * Number(curRate.buy);
+                setMoneyChange({...moneyChange,get:result.toString()});
+            } else {
+                // use sell rate
+                result = Number(moneyChange.change) / Number(curRate.sale);
+                setMoneyChange({...moneyChange,get:result.toString()});
+            }  
+        } else if(moneyChange.get){
+            if(curRate.base_ccy===currChange.get){
+                // use buy rate
+                result = Number(moneyChange.get) * Number(curRate.buy);
+                setMoneyChange({...moneyChange,change:result.toString()});
+            } else {
+                // use sell rate
+                result = Number(moneyChange.get) / Number(curRate.sale);
+                setMoneyChange({...moneyChange,change:result.toString()});
+            }
+
+            // result = Number(moneyChange.get) / Number(curRate.sale);
+            // setMoneyChange({...moneyChange,change:result.toString()});
         }
-        // console.log(result);
     },[curRate,currChange]);
 
-    const handleChange=(e:ChangeEvent)=>{
+    const handleCurrencyChange=(e:ChangeEvent)=>{
         // 1. know who is being changed
-       const whoIsChanging = {name:e.target.id,value:e.target.value};
+       const whoIsChanging = {name:e.target.name,value:e.target.value};
         const otherGuy = Object.entries(currChange).reduce((accumulator, currentVal)=>{
-            if(currentVal[0]!==e.target.id){
+            if(currentVal[0]!==e.target.name){
                 accumulator.name = currentVal[0];
                 accumulator.value = currentVal[1];
             }
@@ -112,10 +138,11 @@ const Exchange:FunctionComponent<ExchangeProps> = ({currency,rates}) => {
         if(isNumber){
             // before setting....calculate some shit
             // find who changed
-            const whoChanged = {name:e.target.id,value:e.target.value};
+            // debugger;
+            const whoChanged = {name:e.target.name,value:e.target.value};
             // find other guy
             const otherGuy = Object.entries(moneyChange).reduce((accumulator, currentVal)=>{
-                if(currentVal[0]!==e.target.id){
+                if(currentVal[0]!==e.target.name){
                     accumulator.name = currentVal[0];
                     accumulator.value = currentVal[1];
                 }
@@ -123,10 +150,19 @@ const Exchange:FunctionComponent<ExchangeProps> = ({currency,rates}) => {
             },{name:"",value:""});
             // do correct calculation for who changed
             let result:number;
-            if(whoChanged.name==="mChange"){
-               result = Number(moneyChange.mChange) * Number(curRate.buy);
+            if(whoChanged.name==="change"){
+                //    result = Number(moneyChange.change) * Number(curRate.buy);
+                if(currChange.change===curRate.ccy){
+                    result = Number(whoChanged.value) * Number(curRate.buy);
+                } else {
+                    result = Number(whoChanged.value) / Number(curRate.sale);
+                }  
             } else {
-               result = Number(moneyChange.mGet) / Number(curRate.sale);
+                if(currChange.get===curRate.base_ccy){
+                    result = Number(whoChanged.value) / Number(curRate.sale);
+                } else {
+                    result = Number(whoChanged.value) * Number(curRate.buy);
+                }
             }
             // set other guy with it
             // set guy who changed with what he changed
@@ -135,16 +171,24 @@ const Exchange:FunctionComponent<ExchangeProps> = ({currency,rates}) => {
     };
 
     const flipper=()=>{
-        const {xChange,xGet} = currChange;
-        setCurrChange({xChange:xGet,xGet:xChange});
+        const {change,get} = currChange;
+        // const {buy,sale} = curRate;
+        // const newObj = {
+        //     change:currChange.get,
+        //     get:currChange.change
+        // };
+        setCurrChange({change:get,get:change});
+        // setCurRate({buy:sale,sale:buy});
+        
+        // console.log("currency changed")
     }
 
     return (
         <div className="converter">
             <div className="change">
                 <small>Change</small>
-                <input onChange={handleMoneyChange} type="text" value={moneyChange.mChange} id="mChange" />
-                <select onChange={handleChange} value={currChange.xChange} name="xChange" id="xChange">
+                <input onChange={handleMoneyChange} type="text" value={moneyChange.change} name="change" />
+                <select onChange={handleCurrencyChange} value={currChange.change} name="change">
                     {currency.map((val)=>{
                         return <option key={val} value={val}>{val}</option>
                     })}
@@ -155,8 +199,8 @@ const Exchange:FunctionComponent<ExchangeProps> = ({currency,rates}) => {
             
             <div className="get">
                 <small>Get</small>
-                <input onChange={handleMoneyChange} type="text" value={moneyChange.mGet} id="mGet" />
-                <select onChange={handleChange} value={currChange.xGet} name="xGet" id="xGet">
+                <input onChange={handleMoneyChange} type="text" value={moneyChange.get} name="get" />
+                <select onChange={handleCurrencyChange} value={currChange.get} name="get">
                 {currency.map((val)=>{
                         return <option key={val} value={val}>{val}</option>
                     })}
