@@ -1,18 +1,12 @@
-import React, { FunctionComponent } from "react";
-import { ratesType } from "../redux/ratesSlice";
+import React, { FunctionComponent, useState } from "react";
+import { ratesType } from "../types";
+import TableData from "./TableData";
+
 type TableProps = {
   rates: ratesType;
 };
 
-const modNum = (numStr: string) => {
-  const floatIndex = numStr.indexOf(".");
-  const precisionNum = floatIndex > 0 ? numStr.slice(0, floatIndex).length + 1 : numStr.length;
-  const num = Number(numStr).toPrecision(precisionNum);
-  return num;
-}
-
 const Table: FunctionComponent<TableProps> = ({ rates }) => {
-  // console.log(data);
   return (
     <table>
       <thead>
@@ -24,12 +18,23 @@ const Table: FunctionComponent<TableProps> = ({ rates }) => {
       </thead>
       <tbody>
         {rates.length ?
-          rates.map((curr, index) => {
+          rates.map((curr) => {
             return (
-              <tr key={index}>
-                <td>{`${curr.ccy} / ${curr.base_ccy}`}</td>
-                <td contentEditable={false}>{modNum(curr.buy)}</td>
-                <td contentEditable={false}>{modNum(curr.sale)}</td>
+              <tr key={`${curr.ccy} / ${curr.base_ccy}`}>
+                  <td>{`${curr.ccy} / ${curr.base_ccy}`}</td>
+                  <TableData 
+                    type="buy" 
+                    ccy={curr.ccy} 
+                    baseCcy={curr.base_ccy}
+                    value={curr.buy}
+                   />
+
+                  <TableData 
+                    type="sale" 
+                    ccy={curr.ccy} 
+                    baseCcy={curr.base_ccy}
+                    value={curr.sale}
+                   />
               </tr>
             )
           })

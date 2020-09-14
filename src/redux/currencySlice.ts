@@ -1,12 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-
-export type ratesType = {
-  ccy: string,
-  base_ccy: string,
-  buy: string,
-  sale: string
-}[]
+import { ratesType } from "../types";
 
 const currencySlice = createSlice({
   name: "currency",

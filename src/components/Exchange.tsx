@@ -1,54 +1,11 @@
 import React, { ChangeEvent, FunctionComponent, useEffect, useState } from 'react';
-import { ratesType } from '../redux/currencySlice';
-
-let justChanged:string|null=null;
+import { ratesType } from '../types';
+import { checkIfNum, possibilities,tryingFunc } from "../helpers";
 
 type ExchangeProps = {
     currency: string[];
     rates: ratesType;
 };
-
-const possibilities = {
-    BTC:{
-        0: "BTC/USD",
-        1: "USD/BTC"
-    },
-    USD:{
-        0: "USD/BTC",
-        1: "BTC/USD",
-        2: "USD/UAH",
-        3: "UAH/USD"
-    },
-    UAH:{
-        0:"UAH/RUR",
-        1:"RUR/UAH",
-        2:"UAH/EUR",
-        3:"EUR/UAH",
-        4:"UAH/USD",
-        5:"USD/UAH"
-    },
-    EUR:{
-        0:"UAH/EUR",
-        1:"EUR/UAH"
-    },
-    RUR:{
-        0:"RUR/UAH",
-        1:"UAH/RUR"
-    }
-};
-
-const tryingFunc=(triez:string[],whoChange:{name:string,value:string})=>{
-    for (const toTry of triez) {
-        for (const key in possibilities[whoChange.value]) {
-            if(possibilities[whoChange.value][key]===toTry){
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
-
 
 const Exchange:FunctionComponent<ExchangeProps> = ({currency,rates}) => {
     const [currChange, setCurrChange] = useState({change:"USD",get:"UAH"});
@@ -71,16 +28,6 @@ const Exchange:FunctionComponent<ExchangeProps> = ({currency,rates}) => {
     useEffect(()=>{
         let result;
         if(moneyChange.change){
-            // need to know the currency for change here
-            // check against ccy and basy_ccy and do calc
-            /* if value for "ccy" is same as value on "change" side, then they
-            want to buy the other currency. hence, buy rate should be multiplied 
-            by money to change
-
-            else, the values should be treated as flipped and it would means they
-            want to sell what is on the "get" side, for the value on the other side.
-            hence money to change should be divided by sale rate
-            */
             if(curRate.ccy===currChange.change){
                 // use buy rate
                 result = Number(moneyChange.change) * Number(curRate.buy);
@@ -100,9 +47,6 @@ const Exchange:FunctionComponent<ExchangeProps> = ({currency,rates}) => {
                 result = Number(moneyChange.get) / Number(curRate.sale);
                 setMoneyChange({...moneyChange,change:result.toString()});
             }
-
-            // result = Number(moneyChange.get) / Number(curRate.sale);
-            // setMoneyChange({...moneyChange,change:result.toString()});
         }
     },[curRate,currChange]);
 
@@ -132,15 +76,9 @@ const Exchange:FunctionComponent<ExchangeProps> = ({currency,rates}) => {
     };
 
     const handleMoneyChange=(e:ChangeEvent)=>{
-        // not updating in a timely fashion
-        const num = Number(e.target.value);
-        const isNumber = typeof(num)==="number" && !Number.isNaN(num); 
+        const isNumber = checkIfNum(e.target.value);
         if(isNumber){
-            // before setting....calculate some shit
-            // find who changed
-            // debugger;
             const whoChanged = {name:e.target.name,value:e.target.value};
-            // find other guy
             const otherGuy = Object.entries(moneyChange).reduce((accumulator, currentVal)=>{
                 if(currentVal[0]!==e.target.name){
                     accumulator.name = currentVal[0];
@@ -148,10 +86,9 @@ const Exchange:FunctionComponent<ExchangeProps> = ({currency,rates}) => {
                 }
                 return accumulator;
             },{name:"",value:""});
-            // do correct calculation for who changed
+
             let result:number;
             if(whoChanged.name==="change"){
-                //    result = Number(moneyChange.change) * Number(curRate.buy);
                 if(currChange.change===curRate.ccy){
                     result = Number(whoChanged.value) * Number(curRate.buy);
                 } else {
@@ -164,23 +101,13 @@ const Exchange:FunctionComponent<ExchangeProps> = ({currency,rates}) => {
                     result = Number(whoChanged.value) * Number(curRate.buy);
                 }
             }
-            // set other guy with it
-            // set guy who changed with what he changed
             setMoneyChange({...moneyChange,[whoChanged.name]:whoChanged.value,[otherGuy.name]:result.toString()});
         }
     };
 
     const flipper=()=>{
         const {change,get} = currChange;
-        // const {buy,sale} = curRate;
-        // const newObj = {
-        //     change:currChange.get,
-        //     get:currChange.change
-        // };
         setCurrChange({change:get,get:change});
-        // setCurRate({buy:sale,sale:buy});
-        
-        // console.log("currency changed")
     }
 
     return (
