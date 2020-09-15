@@ -129,7 +129,10 @@ const Exchange: FunctionComponent<ExchangeProps> = ({ currency, rates }) => {
 
   const handleMoneyChange = (e: ChangeEvent<HTMLInputElement>) => {
     const isNumber = checkIfNum(e.target.value);
-    if (isNumber) {
+    if (
+      isNumber &&
+      moneyChange[e.target.name as "change" | "get"].length < 11
+    ) {
       const whoChanged = { name: e.target.name, value: e.target.value };
       const otherGuy = Object.entries(moneyChange).reduce(
         (accumulator, currentVal) => {
