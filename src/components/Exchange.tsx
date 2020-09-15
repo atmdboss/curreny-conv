@@ -4,7 +4,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { ratesType } from "../types";
+import { ratesType, currencyTypes } from "../types";
 import { checkIfNum, modNum, possibilities, tryingFunc } from "../helpers";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
@@ -33,7 +33,10 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const Exchange: FunctionComponent<ExchangeProps> = ({ currency, rates }) => {
   const classes = useStyles();
-  const [currChange, setCurrChange] = useState({ change: "USD", get: "UAH" });
+  const [currChange, setCurrChange] = useState({
+    change: "USD" as currencyTypes,
+    get: "UAH" as currencyTypes,
+  });
   const [moneyChange, setMoneyChange] = useState({ change: "", get: "" });
   const [curRate, setCurRate] = useState({
     buy: "",
@@ -86,7 +89,10 @@ const Exchange: FunctionComponent<ExchangeProps> = ({ currency, rates }) => {
 
   const handleCurrencyChange = (e: ChangeEvent<HTMLSelectElement>) => {
     // 1. know who is being changed
-    const whoIsChanging = { name: e.target.name, value: e.target.value };
+    const whoIsChanging = {
+      name: e.target.name,
+      value: e.target.value as currencyTypes,
+    };
     const otherGuy = Object.entries(currChange).reduce(
       (accumulator, currentVal) => {
         if (currentVal[0] !== e.target.name) {
@@ -95,7 +101,7 @@ const Exchange: FunctionComponent<ExchangeProps> = ({ currency, rates }) => {
         }
         return accumulator;
       },
-      { name: "", value: "" }
+      { name: "", value: "" as currencyTypes }
     );
 
     const tries = [
@@ -112,7 +118,7 @@ const Exchange: FunctionComponent<ExchangeProps> = ({ currency, rates }) => {
       });
     } else {
       // first find a match
-      const match: string = possibilities[whoIsChanging.value][0];
+      const match = possibilities[whoIsChanging.value][0];
       const smth = match.split("/").find((val) => val !== whoIsChanging.value);
       setCurrChange({
         [whoIsChanging.name]: whoIsChanging.value,
@@ -195,7 +201,7 @@ const Exchange: FunctionComponent<ExchangeProps> = ({ currency, rates }) => {
         </Grid>
 
         <Grid item xs={12} sm={2}>
-          <IconButton onClick={flipper}>
+          <IconButton role="switch-btn" onClick={flipper}>
             <SwapHorizIcon />
           </IconButton>
         </Grid>

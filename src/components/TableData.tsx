@@ -60,6 +60,8 @@ const TableData: FunctionComponent<TableDataProps> = ({
         newValues.negTen === e.target.value
       ) {
         setHasError(false);
+      } else {
+        setHasError(true);
       }
       setNewRate(e.target.value);
     }
@@ -68,11 +70,7 @@ const TableData: FunctionComponent<TableDataProps> = ({
     setEditing(true);
   };
   const handleSave = () => {
-    if (
-      newRate === newValues.posTen ||
-      newRate === newValues.negTen ||
-      newRate === value
-    ) {
+    if (newRate === newValues.posTen || newRate === newValues.negTen) {
       setHasError(false);
       store.dispatch(updateRate({ type, ccy, baseCcy, value: newRate }));
       setEditing(false);
@@ -88,7 +86,7 @@ const TableData: FunctionComponent<TableDataProps> = ({
   return (
     <StyledTableCell align="right">
       {!editing && (
-        <IconButton onClick={handleClick}>
+        <IconButton role="edit-btn" onClick={handleClick}>
           <EditIcon />
         </IconButton>
       )}
@@ -100,10 +98,10 @@ const TableData: FunctionComponent<TableDataProps> = ({
             variant="outlined"
             onChange={handleChange}
           />
-          <IconButton disabled={hasError} onClick={handleSave}>
+          <IconButton role="save-btn" disabled={hasError} onClick={handleSave}>
             <CheckCircleOutlineIcon />
           </IconButton>
-          <IconButton onClick={handleCancel}>
+          <IconButton role="cancel-btn" onClick={handleCancel}>
             <CloseIcon />
           </IconButton>
         </div>

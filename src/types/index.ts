@@ -11,3 +11,5 @@ export type ratesType = {
   buy: string;
   sale: string;
 }[];
+
+export type currencyTypes = "BTC" | "USD" | "UAH" | "EUR" | "RUR";

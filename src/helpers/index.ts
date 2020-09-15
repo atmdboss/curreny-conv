@@ -1,3 +1,5 @@
+import { currencyTypes } from "../types";
+
 export const modNum = (numStr: string) => {
   const floatIndex = numStr.indexOf(".");
   const precisionNum =
@@ -37,7 +39,7 @@ export const possibilities = {
 
 export const tryingFunc = (
   triez: string[],
-  whoChange: { name: string; value: string }
+  whoChange: { name: string; value: currencyTypes }
 ) => {
   for (const toTry of triez) {
     for (const key in possibilities[whoChange.value]) {
